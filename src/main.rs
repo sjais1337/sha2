@@ -14,41 +14,35 @@ const K: [u32; 64] = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b
 
 // Inner Functions
 fn ch(x: u32, y: u32, z: u32) -> u32 {
-    let output: u32 = (x & y) ^ ((!x) & z); 
-    output
+    (x & y) ^ ((!x) & z)
 }
 
 fn maj(x: u32, y: u32, z: u32) -> u32 {
-    let output: u32 = (x & y) ^ (y & z) ^ (x & z);
-    output
+    (x & y) ^ (y & z) ^ (x & z)
 }
 
 fn cal_s0(x: u32) -> u32 {
-    let output: u32 = x.rotate_right(7) ^ x.rotate_right(18) ^ (x >> 3); 
-    output
+    x.rotate_right(7) ^ x.rotate_right(18) ^ (x >> 3) 
 }
 
 fn cal_s1(x: u32) -> u32 {
-    let output: u32 = x.rotate_right(17) ^ x.rotate_right(19) ^ (x >> 10); 
-    output
+    x.rotate_right(17) ^ x.rotate_right(19) ^ (x >> 10) 
 }
 
 fn cal_sigma0(x: u32) -> u32 {
-    let output: u32 = x.rotate_right(2) ^ x.rotate_right(13) ^ x.rotate_right(22);
-    output
+    x.rotate_right(2) ^ x.rotate_right(13) ^ x.rotate_right(22)
 }
 
 fn cal_sigma1(x: u32) -> u32 {
-    let output: u32 = x.rotate_right(6) ^ x.rotate_right(11) ^ x.rotate_right(25);
-    output
+    x.rotate_right(6) ^ x.rotate_right(11) ^ x.rotate_right(25)
 }
 
-
+// Convert from state to string
 fn parse_hash(hash_state: &[u32]) -> String {
     let mut str = String::with_capacity(64);
 
     for &b in hash_state {
-        write!(&mut str, "{:x}", b).expect("Couldn't write.")
+        write!(&mut str, "{:08x}", b).expect("Couldn't write.")
     }
 
     str
@@ -95,8 +89,7 @@ fn pre_process(input: String) -> Vec<[u32; 16]> {
 fn compute_hash(input: String) -> [u32; 8] {
     let chunks = pre_process(input);
 
-    let mut hash_state: [u32; 8] = [0; 8];
-    hash_state[0..8].copy_from_slice(&H);
+    let mut hash_state: [u32; 8] = H;
 
     for chunk in chunks.iter() { 
         let mut message_schedule: [u32; 64] = [0; 64];
