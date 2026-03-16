@@ -1,14 +1,10 @@
+use std::collections::hash_set;
+use std::fmt::Write as FmtWrite;
+use std::io::{self, Write};
+
 // Merkle-Damgard Padding
 // 1, then m 0's then length as 64 bit integer
-const H0: u32 = 0x6a09e667;
-const H1: u32 = 0xbb67ae85;
-const H2: u32 = 0x3c6ef372;
-const H3: u32 = 0xa54ff53a;
-const H4: u32 = 0x510e527f;
-const H5: u32 = 0x9b05688c;
-const H6: u32 = 0x1f83d9ab;
-const H7: u32 = 0x5be0cd19;
-
+const H: [u32; 8] = [ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 ];
 const K: [u32; 64] = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
                     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
                     0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -17,6 +13,16 @@ const K: [u32; 64] = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b
                     0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
                     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
                     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+
+fn parse_hash(hash_state: &[u32]) -> String {
+    let mut str = String::with_capacity(64);
+
+    for &b in hash_state {
+        write!(&mut str, "{:x}", b).expect("Couldn't write.")
+    }
+
+    str
+}
 
 fn pad_input(input: &[u8]) -> Vec<u8> {
     let size_in_bits: u64 = (input.len() as u64) * 8;
@@ -62,31 +68,31 @@ fn cal_sigma1(x: u32) -> u32 {
     let output: u32 = x.rotate_right(6) ^ x.rotate_right(11) ^ x.rotate_right(25);
     output
 }
-// Length of Block: 512 bits for 224/256
 
-fn main() {
-    // In general the message can be anything, right now we just have strings
-    // We will have a special pre-processing step to convert a string to its 
-    // binary equivalent, and then proceed
-    
-    let input: &str = "hello";
-    let chars: &[u8] = input.as_bytes();
+fn pre_process(input: String) -> Vec<[u32; 16]> {
+    // characters as bytes
+    let chars: &[u8] = input.trim_end().as_bytes();
 
     let padded_input: Vec<u8> = pad_input(chars);
-    let (split_32,_) =  padded_input.as_chunks::<4>();
 
-    let padded_words: Vec<u32> = split_32.iter().map(|&x| u32::from_be_bytes(x)).collect();
+    // split the vector of bytes into chunks of 4 to combine them into u32s.
+    let (split_32, _) = padded_input.as_chunks::<4>();
+    let padded_words: Vec<u32> = split_32
+        .iter()
+        .map(|&x| u32::from_be_bytes(x))
+        .collect();
 
-    let mut h0: u32 = H0;
-    let mut h1: u32 = H1;
-    let mut h2: u32 = H2;
-    let mut h3: u32 = H3;
-    let mut h4: u32 = H4;
-    let mut h5: u32 = H5;
-    let mut h6: u32 = H6;
-    let mut h7: u32 = H7;
-
+    // split the words into chunks of size 512
     let (chunks, _) = padded_words.as_chunks::<16>();
+
+    chunks.to_vec()
+}
+
+fn compute_hash(input: String) -> [u32; 8] {
+    let chunks = pre_process(input);
+
+    let mut hash_state: [u32; 8] = [0; 8];
+    hash_state[0..8].copy_from_slice(&H);
 
     for chunk in chunks.iter() { 
         let mut message_schedule: [u32; 64] = [0; 64];
@@ -103,14 +109,14 @@ fn main() {
                 .wrapping_add(message_schedule[i - 7]);
         }
 
-        let mut a: u32 = h0;
-        let mut b: u32 = h1;
-        let mut c: u32 = h2;
-        let mut d: u32 = h3;
-        let mut e: u32 = h4;
-        let mut f: u32 = h5;
-        let mut g: u32 = h6;
-        let mut h: u32 = h7;
+        let mut a: u32 = hash_state[0];
+        let mut b: u32 = hash_state[1];
+        let mut c: u32 = hash_state[2];
+        let mut d: u32 = hash_state[3];
+        let mut e: u32 = hash_state[4];
+        let mut f: u32 = hash_state[5];
+        let mut g: u32 = hash_state[6];
+        let mut h: u32 = hash_state[7];
 
         for i in 0..64 {
             let temp1: u32 = h
@@ -131,15 +137,37 @@ fn main() {
             a = temp1.wrapping_add(temp2);
         }
 
-        h0 = h0.wrapping_add(a);
-        h1 = h1.wrapping_add(b);
-        h2 = h2.wrapping_add(c);
-        h3 = h3.wrapping_add(d);
-        h4 = h4.wrapping_add(e);
-        h5 = h5.wrapping_add(f);
-        h6 = h6.wrapping_add(g);
-        h7 = h7.wrapping_add(h);
-    }
+        hash_state[0] = hash_state[0].wrapping_add(a);
+        hash_state[1] = hash_state[1].wrapping_add(b);
+        hash_state[2] = hash_state[2].wrapping_add(c);
+        hash_state[3] = hash_state[3].wrapping_add(d);
+        hash_state[4] = hash_state[4].wrapping_add(e);
+        hash_state[5] = hash_state[5].wrapping_add(f);
+        hash_state[6] = hash_state[6].wrapping_add(g);
+        hash_state[7] = hash_state[7].wrapping_add(h);
 
-    println!("{:08x}{:08x}{:08x}{:08x}{:08x}{:08x}{:08x}{:08x}", h0, h1, h2, h3, h4, h5, h6, h7);
+    }
+    
+    hash_state
+}
+
+fn main() {
+    println!("Enter the text to be hashed"); 
+    print!("> ");
+
+    io::stdout()
+        .flush()
+        .expect("Couldn't flush.");
+
+    let mut input = String::new();
+
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line.");
+
+    let sha256_hash = compute_hash(input);
+    
+    let final_hash = parse_hash(&sha256_hash);
+
+    println!("Hashed output: {}", final_hash);
 }
