@@ -1,9 +1,7 @@
-use std::collections::hash_set;
 use std::fmt::Write as FmtWrite;
 use std::io::{self, Write};
 
-// Merkle-Damgard Padding
-// 1, then m 0's then length as 64 bit integer
+// Pre-decided values
 const H: [u32; 8] = [ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 ];
 const K: [u32; 64] = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
                     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -14,31 +12,7 @@ const K: [u32; 64] = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b
                     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
                     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
 
-fn parse_hash(hash_state: &[u32]) -> String {
-    let mut str = String::with_capacity(64);
-
-    for &b in hash_state {
-        write!(&mut str, "{:x}", b).expect("Couldn't write.")
-    }
-
-    str
-}
-
-fn pad_input(input: &[u8]) -> Vec<u8> {
-    let size_in_bits: u64 = (input.len() as u64) * 8;
-    let mut padded: Vec<u8> = input.to_vec();
-    
-    padded.push((1 << 7) as u8);
-
-    while padded.len() % 64 != 56 {
-        padded.push(0);
-    }
-    
-    padded.extend_from_slice(&size_in_bits.to_be_bytes());
-
-    padded
-}
-
+// Inner Functions
 fn ch(x: u32, y: u32, z: u32) -> u32 {
     let output: u32 = (x & y) ^ ((!x) & z); 
     output
@@ -69,6 +43,35 @@ fn cal_sigma1(x: u32) -> u32 {
     output
 }
 
+
+fn parse_hash(hash_state: &[u32]) -> String {
+    let mut str = String::with_capacity(64);
+
+    for &b in hash_state {
+        write!(&mut str, "{:x}", b).expect("Couldn't write.")
+    }
+
+    str
+}
+
+// Merkle-Damgard Padding
+// 1, then m 0's then length as 64 bit integer
+fn pad_input(input: &[u8]) -> Vec<u8> {
+    let size_in_bits: u64 = (input.len() as u64) * 8;
+    let mut padded: Vec<u8> = input.to_vec();
+    
+    padded.push((1 << 7) as u8);
+
+    while padded.len() % 64 != 56 {
+        padded.push(0);
+    }
+    
+    padded.extend_from_slice(&size_in_bits.to_be_bytes());
+
+    padded
+}
+
+// Raw characters to proper chunks
 fn pre_process(input: String) -> Vec<[u32; 16]> {
     // characters as bytes
     let chars: &[u8] = input.trim_end().as_bytes();
@@ -88,6 +91,7 @@ fn pre_process(input: String) -> Vec<[u32; 16]> {
     chunks.to_vec()
 }
 
+// Actual computation
 fn compute_hash(input: String) -> [u32; 8] {
     let chunks = pre_process(input);
 
@@ -166,7 +170,6 @@ fn main() {
         .expect("Failed to read line.");
 
     let sha256_hash = compute_hash(input);
-    
     let final_hash = parse_hash(&sha256_hash);
 
     println!("Hashed output: {}", final_hash);
