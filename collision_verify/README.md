@@ -1,5 +1,4 @@
 # collision_verify
-
 Clean-room implementation of the **`verify_result`** tool from `2024_attack_code`: it checks whether two message paths produce the **same chaining state** after **reduced-round** SHA-256 or SHA-512 compression, under **free-start**, **semi-free-start**, or **standard IV** collision models.
 
 ## Features
@@ -17,7 +16,8 @@ Field syntax matches the legacy verifier:
 key: value;
 ```
 
-See `2024_attack_code/README.md` for the full parameter reference; **this program accepts the same config files**.
+See `README.md` for the full parameter reference; 
+
 
 ## Build
 
@@ -35,7 +35,7 @@ The executable is `build/collision_verify`.
 ./build/collision_verify /path/to/config.txt
 ```
 
-Exit status is **0** on success (including when `Collision: NO`), **1** on usage or parse/compute errors.
+Exit status is **0** on successful completion (including when `Collision: NO`), **1** on usage or parse/compute errors.
 
 ## Project layout
 
@@ -49,5 +49,4 @@ Exit status is **0** on success (including when `Collision: NO`), **1** on usage
 | `src/main.cpp` | Thin CLI wrapper |
 
 ## Relationship to `verify_result`
-
 Behavior and textual output are intended to match the original **`check_value`** binary so existing `.txt` configs remain valid. The implementation is reorganized for clarity, documentation, and separation of concerns—not for algorithmic novelty.

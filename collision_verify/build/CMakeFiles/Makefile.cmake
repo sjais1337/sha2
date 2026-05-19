@@ -7,7 +7,7 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
-  "/home/sjais/acads/sha2/collision_verify/CMakeLists.txt"
+  "/home/sjais/projects/sha2/2024_attack_code/collision_verify/CMakeLists.txt"
   "CMakeFiles/4.3.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.3.2/CMakeSystem.cmake"
   "/usr/share/cmake/Modules/CMakeCXXCompiler.cmake.in"

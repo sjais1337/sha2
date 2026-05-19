@@ -1,7 +1,7 @@
 CMakeFiles/collision_verify.dir/src/main.cpp.o: \
- /home/sjais/acads/sha2/collision_verify/src/main.cpp \
+ /home/sjais/projects/sha2/2024_attack_code/collision_verify/src/main.cpp \
  /usr/include/stdc-predef.h \
- /home/sjais/acads/sha2/collision_verify/include/sha2/config.hpp \
+ /home/sjais/projects/sha2/2024_attack_code/collision_verify/include/sha2/config.hpp \
  /usr/include/c++/15.2.1/array /usr/include/c++/15.2.1/compare \
  /usr/include/c++/15.2.1/bits/version.h \
  /usr/include/c++/15.2.1/x86_64-pc-linux-gnu/bits/c++config.h \
@@ -162,9 +162,9 @@ CMakeFiles/collision_verify.dir/src/main.cpp.o: \
  /usr/include/c++/15.2.1/bits/stl_multimap.h \
  /usr/include/c++/15.2.1/bits/erase_if.h /usr/include/c++/15.2.1/sstream \
  /usr/include/c++/15.2.1/bits/sstream.tcc \
- /home/sjais/acads/sha2/collision_verify/include/sha2/verifier.hpp \
- /home/sjais/acads/sha2/collision_verify/include/sha2/compress.hpp \
- /home/sjais/acads/sha2/collision_verify/include/sha2/constants.hpp \
+ /home/sjais/projects/sha2/2024_attack_code/collision_verify/include/sha2/verifier.hpp \
+ /home/sjais/projects/sha2/2024_attack_code/collision_verify/include/sha2/compress.hpp \
+ /home/sjais/projects/sha2/2024_attack_code/collision_verify/include/sha2/constants.hpp \
  /usr/include/c++/15.2.1/algorithm \
  /usr/include/c++/15.2.1/bits/stl_algo.h \
  /usr/include/c++/15.2.1/bits/algorithmfwd.h \
@@ -173,7 +173,7 @@ CMakeFiles/collision_verify.dir/src/main.cpp.o: \
  /usr/include/c++/15.2.1/bits/stl_tempbuf.h \
  /usr/include/c++/15.2.1/pstl/glue_algorithm_defs.h \
  /usr/include/c++/15.2.1/pstl/execution_defs.h \
- /home/sjais/acads/sha2/collision_verify/include/sha2/format.hpp \
+ /home/sjais/projects/sha2/2024_attack_code/collision_verify/include/sha2/format.hpp \
  /usr/include/c++/15.2.1/iomanip /usr/include/c++/15.2.1/locale \
  /usr/include/c++/15.2.1/bits/locale_facets_nonio.h \
  /usr/include/c++/15.2.1/ctime \

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/sjais/acads/sha2/collision_verify/include
+CXX_INCLUDES = -I/home/sjais/projects/sha2/2024_attack_code/collision_verify/include
 
 CXX_FLAGS = -std=c++17 -Wall -Wextra -Wpedantic
 
